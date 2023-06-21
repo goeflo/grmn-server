@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"goeflo/grmn-server/rest"
+	"grmn-server/rest"
 	"log"
 	"os"
 )

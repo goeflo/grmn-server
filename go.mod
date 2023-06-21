@@ -1,4 +1,4 @@
-module goeflo/grmn-server
+module grmn-server
 
 go 1.20
 

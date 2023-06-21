@@ -2,7 +2,7 @@ package rest
 
 import (
 	"fmt"
-	"goeflo/grmn-server/activities"
+	"grmn-server/activities"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
