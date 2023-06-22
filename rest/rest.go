@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"grmn-server/activities"
 	"net/http"
+	"path/filepath"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -37,5 +38,10 @@ func getActivities(c *gin.Context) {
 }
 
 func getActivity(c *gin.Context) {
-
+	name := c.Param("name")
+	r, err := activities.GetActivityRecords(filepath.Join(opts.Activities, name))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{"message": err})
+	}
+	c.JSON(http.StatusOK, r)
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"grmn-server/activities"
 	"grmn-server/rest"
 	"log"
 	"os"
@@ -24,6 +25,7 @@ func main() {
 		log.Fatalf("path to activities '%v' does not exists, please check given directory parameter", *activitiesDir)
 	}
 
+	activities.Start(*activitiesDir)
 	rest.Start(rest.RestOpts{Activities: *activitiesDir, Port: *port, Verbose: *verbose})
 }
 
