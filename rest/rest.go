@@ -25,8 +25,18 @@ func Start(startOpts RestOpts) {
 	router := gin.Default()
 	router.Use(cors.Default())
 	router.GET("/activities", getActivities)
+	//router.GET("/activity/:name", getActivity)
 	router.GET("/activity/:name", getActivity)
 	router.Run(fmt.Sprintf("localhost:%v", opts.Port))
+}
+
+func getActivity(c *gin.Context) {
+	name := c.Param("name")
+	r, err := activities.GetActivitySummary(filepath.Join(opts.Activities, name))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{"message": err})
+	}
+	c.JSON(http.StatusOK, r)
 }
 
 func getActivities(c *gin.Context) {
@@ -37,11 +47,11 @@ func getActivities(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func getActivity(c *gin.Context) {
-	name := c.Param("name")
-	r, err := activities.GetActivityRecords(filepath.Join(opts.Activities, name))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, map[string]interface{}{"message": err})
-	}
-	c.JSON(http.StatusOK, r)
-}
+// func getActivity(c *gin.Context) {
+// 	name := c.Param("name")
+// 	r, err := activities.GetActivityRecords(filepath.Join(opts.Activities, name))
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, map[string]interface{}{"message": err})
+// 	}
+// 	c.JSON(http.StatusOK, r)
+// }

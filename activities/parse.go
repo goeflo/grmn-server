@@ -5,45 +5,84 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"github.com/tormoder/fit"
 )
 
 type FitData struct {
+	Date            time.Time
+	Product         string
+	NormalizedPower int
+	MovingTime      uint32
+	Distance        uint32
+	Records         []*fit.RecordMsg
 }
 
-func GetActivityRecords(name string) (records []*fit.RecordMsg, err error) {
+func (d *FitData) String() string {
+	return fmt.Sprintf("date: %v; product: %v, moving time: %v, distance: %v, normalized power: %v\n",
+		d.Date, d.Product, d.MovingTime, d.Distance, d.NormalizedPower)
+}
+
+func GetActivitySummary(name string) (summary *FitData, err error) {
 	fmt.Printf("parse fit file: %v\n", name)
-	testData, err := os.ReadFile(name)
+	fitFileData, err := os.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
 
-	fit, err := fit.Decode(bytes.NewReader(testData))
+	fit, err := fit.Decode(bytes.NewReader(fitFileData))
 	if err != nil {
 		return nil, err
+	}
+
+	summary = &FitData{
+		Date:    fit.FileId.TimeCreated,
+		Product: fmt.Sprintf("%v", fit.FileId.GetProduct()),
 	}
 
 	fitActivity, err := fit.Activity()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("created: %v, product: %v\n", fit.FileId.TimeCreated, fit.FileId.GetProduct())
-	fmt.Printf("activity records: %v\n", len(fitActivity.Records))
-	return fitActivity.Records, nil
+	sessions := fitActivity.Sessions
 
-	// sessions := fitActivity.Sessions
-	// fmt.Printf("session messages: %v\n", len(sessions))
+	if len(sessions) == 1 {
+		if sessions[0].NormalizedPower != 65535 {
+			summary.NormalizedPower = int(sessions[0].NormalizedPower)
+		}
+		summary.MovingTime = sessions[0].TotalTimerTime
+		summary.Distance = sessions[0].TotalDistance
+	}
 
-	// if len(sessions) == 1 {
-	// 	if sessions[0].NormalizedPower != 65535 {
-	// 		fmt.Printf("normalized power: %v\n", sessions[0].NormalizedPower)
-	// 	} else {
-	// 		fmt.Println("normalized power: %")
-	// 	}
-	// }
+	summary.Records = fitActivity.Records
+	fmt.Printf("%v\n", summary)
 
+	return summary, nil
 }
+
+// func GetActivityRecords(name string) (records []*fit.RecordMsg, err error) {
+// 	fmt.Printf("parse fit file: %v\n", name)
+// 	testData, err := os.ReadFile(name)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	fit, err := fit.Decode(bytes.NewReader(testData))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	fitActivity, err := fit.Activity()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	fmt.Printf("created: %v, product: %v\n", fit.FileId.TimeCreated, fit.FileId.GetProduct())
+// 	fmt.Printf("activity records: %v\n", len(fitActivity.Records))
+// 	return fitActivity.Records, nil
+
+// }
 
 func ParseFast(name string) (activity *Activity, err error) {
 
