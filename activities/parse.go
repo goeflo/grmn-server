@@ -13,6 +13,7 @@ import (
 type FitData struct {
 	Date            time.Time
 	Product         string
+	AveragePower    uint16
 	NormalizedPower int
 	MovingTime      uint32
 	Distance        uint32
@@ -51,6 +52,7 @@ func GetActivitySummary(name string) (summary *FitData, err error) {
 		if sessions[0].NormalizedPower != 65535 {
 			summary.NormalizedPower = int(sessions[0].NormalizedPower)
 		}
+		summary.AveragePower = sessions[0].AvgPower
 		summary.MovingTime = sessions[0].TotalTimerTime
 		summary.Distance = sessions[0].TotalDistance
 	}
